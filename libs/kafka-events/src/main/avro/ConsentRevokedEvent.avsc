@@ -1,0 +1,55 @@
+{
+  "type": "record",
+  "name": "ConsentRevokedEvent",
+  "namespace": "dev.vibeafrika.pcm.events",
+  "doc": "Event emitted when consent is revoked",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string",
+      "doc": "Unique identifier for this event"
+    },
+    {
+      "name": "eventType",
+      "type": "string",
+      "default": "ConsentRevoked",
+      "doc": "Type of the event"
+    },
+    {
+      "name": "occurredAt",
+      "type": "long",
+      "logicalType": "timestamp-millis",
+      "doc": "Timestamp when the event occurred (epoch millis)"
+    },
+    {
+      "name": "version",
+      "type": "int",
+      "default": 1,
+      "doc": "Schema version"
+    },
+    {
+      "name": "tenantId",
+      "type": "string",
+      "doc": "Tenant identifier"
+    },
+    {
+      "name": "consentId",
+      "type": "string",
+      "doc": "Unique identifier of the revocation record"
+    },
+    {
+      "name": "profileId",
+      "type": "string",
+      "doc": "Profile ID that revoked consent"
+    },
+    {
+      "name": "purpose",
+      "type": {
+        "type": "enum",
+        "name": "ConsentPurpose",
+        "symbols": ["MARKETING", "ANALYTICS", "PERSONALIZATION", "THIRD_PARTY_SHARING", "TERMS_AND_CONDITIONS", "PRIVACY_POLICY"]
+      },
+      "doc": "Purpose of the consent being revoked"
+    }
+  ]
+}

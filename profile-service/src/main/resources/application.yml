@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: profile-service
+  config:
+    import: "optional:configserver:http://localhost:8888"
+  cloud:
+    config:
+      fail-fast: false # In dev, we might start services before config-service is healthy
+      retry:
+        initial-interval: 2000
+        max-attempts: 10

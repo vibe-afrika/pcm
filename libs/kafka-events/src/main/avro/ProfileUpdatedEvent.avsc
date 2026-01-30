@@ -1,0 +1,46 @@
+{
+  "type": "record",
+  "name": "ProfileUpdatedEvent",
+  "namespace": "dev.vibeafrika.pcm.events",
+  "doc": "Event emitted when a profile is updated",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string",
+      "doc": "Unique identifier for this event"
+    },
+    {
+      "name": "eventType",
+      "type": "string",
+      "default": "ProfileUpdated",
+      "doc": "Type of the event"
+    },
+    {
+      "name": "occurredAt",
+      "type": "long",
+      "logicalType": "timestamp-millis",
+      "doc": "Timestamp when the event occurred (epoch millis)"
+    },
+    {
+      "name": "version",
+      "type": "int",
+      "default": 1,
+      "doc": "Schema version"
+    },
+    {
+      "name": "tenantId",
+      "type": "string",
+      "doc": "Tenant identifier"
+    },
+    {
+      "name": "profileId",
+      "type": "string",
+      "doc": "Unique identifier of the updated profile"
+    },
+    {
+      "name": "updatedAttributes",
+      "type": "string",
+      "doc": "JSON string of updated attributes"
+    }
+  ]
+}

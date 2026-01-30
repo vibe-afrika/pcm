@@ -1,0 +1,52 @@
+{
+    "id": "pcm",
+    "realm": "pcm",
+    "enabled": true,
+    "sslRequired": "none",
+    "users": [
+        {
+            "username": "pcm-admin",
+            "enabled": true,
+            "email": "admin@pcm.dev",
+            "firstName": "PCM",
+            "lastName": "Admin",
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "pcm_admin_password",
+                    "temporary": false
+                }
+            ],
+            "realmRoles": [
+                "admin",
+                "user"
+            ]
+        }
+    ],
+    "roles": {
+        "realm": [
+            {
+                "name": "admin",
+                "description": "Administrator"
+            },
+            {
+                "name": "user",
+                "description": "Standard User"
+            }
+        ]
+    },
+    "clients": [
+        {
+            "clientId": "pcm-gateway",
+            "enabled": true,
+            "publicClient": true,
+            "directAccessGrantsEnabled": true,
+            "webOrigins": [
+                "*"
+            ],
+            "redirectUris": [
+                "*"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package dev.vibeafrika.pcm.grpc.profile;
+
+option java_multiple_files = true;
+option java_package = "dev.vibeafrika.pcm.grpc.profile";
+option java_outer_classname = "ProfileServiceProto";
+
+// Profile Service - gRPC API for internal service-to-service communication
+service ProfileService {
+  // Get a profile by ID
+  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
+  
+  // Get multiple profiles by IDs (batch operation)
+  rpc GetProfiles(GetProfilesRequest) returns (GetProfilesResponse);
+  
+  // Get profile by handle
+  rpc GetProfileByHandle(GetProfileByHandleRequest) returns (GetProfileResponse);
+  
+  // Check if a handle exists
+  rpc HandleExists(HandleExistsRequest) returns (HandleExistsResponse);
+  
+  // Get profile summary (lightweight version)
+  rpc GetProfileSummary(GetProfileSummaryRequest) returns (ProfileSummary);
+}
+
+// Request to get a profile by ID
+message GetProfileRequest {
+  string profile_id = 1;
+  string tenant_id = 2;
+}
+
+// Request to get multiple profiles
+message GetProfilesRequest {
+  repeated string profile_ids = 1;
+  string tenant_id = 2;
+}
+
+// Request to get profile by handle
+message GetProfileByHandleRequest {
+  string handle = 1;
+  string tenant_id = 2;
+}
+
+// Request to check if handle exists
+message HandleExistsRequest {
+  string handle = 1;
+}
+
+// Response for handle existence check
+message HandleExistsResponse {
+  bool exists = 1;
+}
+
+// Request to get profile summary
+message GetProfileSummaryRequest {
+  string profile_id = 1;
+  string tenant_id = 2;
+}
+
+// Full profile response
+message GetProfileResponse {
+  Profile profile = 1;
+}
+
+// Multiple profiles response
+message GetProfilesResponse {
+  repeated Profile profiles = 1;
+}
+
+// Profile message
+message Profile {
+  string id = 1;
+  string tenant_id = 2;
+  string handle = 3;
+  map<string, string> attributes = 4;
+  int64 created_at = 5;  // Unix timestamp in milliseconds
+  int64 updated_at = 6;  // Unix timestamp in milliseconds
+  int64 deleted_at = 7;  // Unix timestamp in milliseconds (0 if not deleted)
+}
+
+// Lightweight profile summary
+message ProfileSummary {
+  string id = 1;
+  string handle = 2;
+  string display_name = 3;  // Extracted from attributes
+  int64 deleted_at = 4;
+}

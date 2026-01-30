@@ -1,0 +1,81 @@
+# Default values for pcm.
+# This is a YAML-formatted file.
+
+global:
+  namespace: pcm
+  storageClass: ""
+
+profileService:
+  replicaCount: 2
+  image:
+    repository: pcm/profile-service
+    tag: 0.1.0-SNAPSHOT
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8081
+    grpcPort: 9091
+
+consentService:
+  replicaCount: 2
+  image:
+    repository: pcm/consent-service
+    tag: 0.1.0-SNAPSHOT
+  service:
+    port: 8082
+    grpcPort: 9092
+
+segmentService:
+  replicaCount: 1
+  image:
+    repository: pcm/segment-service
+    tag: 0.1.0-SNAPSHOT
+  service:
+    port: 8083
+    grpcPort: 9093
+
+preferenceService:
+  replicaCount: 2
+  image:
+    repository: pcm/preference-service
+    tag: 0.1.0-SNAPSHOT
+  service:
+    port: 8084
+    grpcPort: 9094
+
+apiGateway:
+  replicaCount: 2
+  image:
+    repository: pcm/api-gateway
+    tag: 0.1.0-SNAPSHOT
+  service:
+    type: LoadBalancer
+    port: 80
+
+postgresql:
+  enabled: true
+  auth:
+    username: pcm_user
+    password: pcm_password
+    database: profile_db
+  primary:
+    persistence:
+      size: 1Gi
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+
+kafka:
+  enabled: true
+  persistence:
+    size: 2Gi
+
+elasticsearch:
+  enabled: true
+  master:
+    replicaCount: 1
+  data:
+    replicaCount: 1

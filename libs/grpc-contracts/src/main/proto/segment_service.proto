@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package dev.vibeafrika.pcm.grpc.segment;
+
+option java_multiple_files = true;
+option java_package = "dev.vibeafrika.pcm.grpc.segment";
+option java_outer_classname = "SegmentServiceProto";
+
+// Segment Service - gRPC API for user segmentation
+service SegmentService {
+  // Get segments for a profile
+  rpc GetSegments(GetSegmentsRequest) returns (GetSegmentsResponse);
+  
+  // Check if profile belongs to a segment
+  rpc BelongsToSegment(BelongsToSegmentRequest) returns (BelongsToSegmentResponse);
+  
+  // Get profiles in a segment (paginated)
+  rpc GetProfilesInSegment(GetProfilesInSegmentRequest) returns (GetProfilesInSegmentResponse);
+}
+
+// Request to get segments
+message GetSegmentsRequest {
+  string profile_id = 1;
+  string tenant_id = 2;
+}
+
+// Response with segments
+message GetSegmentsResponse {
+  repeated string tags = 1;
+  map<string, double> scores = 2;  // segment name -> score (0.0 to 1.0)
+  int64 updated_at = 3;  // Unix timestamp in milliseconds
+}
+
+// Request to check segment membership
+message BelongsToSegmentRequest {
+  string profile_id = 1;
+  string tenant_id = 2;
+  string segment_tag = 3;
+}
+
+// Response for segment membership
+message BelongsToSegmentResponse {
+  bool belongs = 1;
+  double score = 2;  // Confidence score (0.0 to 1.0)
+}
+
+// Request to get profiles in a segment
+message GetProfilesInSegmentRequest {
+  string tenant_id = 1;
+  string segment_tag = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+// Response with profiles in segment
+message GetProfilesInSegmentResponse {
+  repeated string profile_ids = 1;
+  int32 total_count = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}

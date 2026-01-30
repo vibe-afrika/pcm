@@ -1,0 +1,57 @@
+{
+  "type": "record",
+  "name": "UserSegmentedEvent",
+  "namespace": "dev.vibeafrika.pcm.events",
+  "doc": "Event emitted when a user's segments or scores are updated",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string",
+      "doc": "Unique identifier for this event"
+    },
+    {
+      "name": "eventType",
+      "type": "string",
+      "default": "UserSegmented",
+      "doc": "Type of the event"
+    },
+    {
+      "name": "occurredAt",
+      "type": "long",
+      "logicalType": "timestamp-millis",
+      "doc": "Timestamp when the event occurred (epoch millis)"
+    },
+    {
+      "name": "version",
+      "type": "int",
+      "default": 1,
+      "doc": "Schema version"
+    },
+    {
+      "name": "tenantId",
+      "type": "string",
+      "doc": "Tenant identifier"
+    },
+    {
+      "name": "profileId",
+      "type": "string",
+      "doc": "Profile identifier"
+    },
+    {
+      "name": "tags",
+      "type": {
+        "type": "array",
+        "items": "string"
+      },
+      "doc": "List of tags/segments assigned to the user"
+    },
+    {
+      "name": "scores",
+      "type": {
+        "type": "map",
+        "values": "double"
+      },
+      "doc": "Numerical scores for different classification categories"
+    }
+  ]
+}

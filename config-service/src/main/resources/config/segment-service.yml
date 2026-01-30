@@ -1,0 +1,15 @@
+server:
+  port: ${SERVER_PORT:18084}
+
+spring:
+  application:
+    name: segment-service
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
+  kafka:
+    consumer:
+      group-id: segment-service-group
+
+grpc:
+  server:
+    port: ${GRPC_SERVER_PORT:19094}

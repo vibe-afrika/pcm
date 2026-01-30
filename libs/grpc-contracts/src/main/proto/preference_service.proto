@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package dev.vibeafrika.pcm.grpc.preference;
+
+option java_multiple_files = true;
+option java_package = "dev.vibeafrika.pcm.grpc.preference";
+option java_outer_classname = "PreferenceServiceProto";
+
+// Preference Service - gRPC API for user preferences
+service PreferenceService {
+  // Get all preferences for a profile
+  rpc GetPreferences(GetPreferencesRequest) returns (GetPreferencesResponse);
+  
+  // Get a specific preference value
+  rpc GetPreference(GetPreferenceRequest) returns (GetPreferenceResponse);
+  
+  // Update preferences
+  rpc UpdatePreferences(UpdatePreferencesRequest) returns (UpdatePreferencesResponse);
+}
+
+// Request to get all preferences
+message GetPreferencesRequest {
+  string profile_id = 1;
+  string tenant_id = 2;
+}
+
+// Response with all preferences
+message GetPreferencesResponse {
+  Preferences preferences = 1;
+}
+
+// Request to get a specific preference
+message GetPreferenceRequest {
+  string profile_id = 1;
+  string tenant_id = 2;
+  string key = 3;
+}
+
+// Response with a specific preference
+message GetPreferenceResponse {
+  string key = 1;
+  string value = 2;
+}
+
+// Request to update preferences
+message UpdatePreferencesRequest {
+  string profile_id = 1;
+  string tenant_id = 2;
+  map<string, string> preferences = 3;
+}
+
+// Response for preference update
+message UpdatePreferencesResponse {
+  bool success = 1;
+  int64 updated_at = 2;  // Unix timestamp in milliseconds
+}
+
+// Preferences message
+message Preferences {
+  string profile_id = 1;
+  string language = 2;
+  string theme = 3;  // "light", "dark", "auto"
+  NotificationPreferences notifications = 4;
+  map<string, string> custom = 5;  // Custom preferences
+  int64 updated_at = 6;  // Unix timestamp in milliseconds
+}
+
+// Notification preferences
+message NotificationPreferences {
+  bool email_enabled = 1;
+  bool push_enabled = 2;
+  bool sms_enabled = 3;
+  bool marketing_enabled = 4;
+  bool product_updates_enabled = 5;
+}

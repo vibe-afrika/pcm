@@ -1,0 +1,49 @@
+{
+  "type": "record",
+  "name": "PreferenceUpdatedEvent",
+  "namespace": "dev.vibeafrika.pcm.events",
+  "doc": "Event emitted when user preferences are updated",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string",
+      "doc": "Unique identifier for this event"
+    },
+    {
+      "name": "eventType",
+      "type": "string",
+      "default": "PreferenceUpdated",
+      "doc": "Type of the event"
+    },
+    {
+      "name": "occurredAt",
+      "type": "long",
+      "logicalType": "timestamp-millis",
+      "doc": "Timestamp when the event occurred (epoch millis)"
+    },
+    {
+      "name": "version",
+      "type": "int",
+      "default": 1,
+      "doc": "Schema version"
+    },
+    {
+      "name": "tenantId",
+      "type": "string",
+      "doc": "Tenant identifier"
+    },
+    {
+      "name": "profileId",
+      "type": "string",
+      "doc": "Profile identifier"
+    },
+    {
+      "name": "preferences",
+      "type": {
+        "type": "map",
+        "values": "string"
+      },
+      "doc": "Map of preference keys and values (e.g., language=en, theme=dark)"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package dev.vibeafrika.pcm.grpc.consent;
+
+option java_multiple_files = true;
+option java_package = "dev.vibeafrika.pcm.grpc.consent";
+option java_outer_classname = "ConsentServiceProto";
+
+// Consent Service - gRPC API for consent management
+service ConsentService {
+  // Get current consent status for a specific purpose
+  rpc GetConsentStatus(GetConsentStatusRequest) returns (ConsentStatusResponse);
+  
+  // Get all consents for a profile
+  rpc GetAllConsents(GetAllConsentsRequest) returns (GetAllConsentsResponse);
+  
+  // Get consent history for a specific purpose
+  rpc GetConsentHistory(GetConsentHistoryRequest) returns (ConsentHistoryResponse);
+  
+  // Verify if user has granted consent for a purpose
+  rpc VerifyConsent(VerifyConsentRequest) returns (VerifyConsentResponse);
+}
+
+// Consent purpose enumeration
+enum ConsentPurpose {
+  CONSENT_PURPOSE_UNSPECIFIED = 0;
+  MARKETING = 1;
+  ANALYTICS = 2;
+  PERSONALIZATION = 3;
+  THIRD_PARTY_SHARING = 4;
+  TERMS_AND_CONDITIONS = 5;
+  PRIVACY_POLICY = 6;
+}
+
+// Request to get consent status
+message GetConsentStatusRequest {
+  string profile_id = 1;
+  string tenant_id = 2;
+  ConsentPurpose purpose = 3;
+}
+
+// Response with consent status
+message ConsentStatusResponse {
+  bool granted = 1;
+  string version = 2;
+  int64 timestamp = 3;  // Unix timestamp in milliseconds
+  string proof_hash = 4;
+}
+
+// Request to get all consents
+message GetAllConsentsRequest {
+  string profile_id = 1;
+  string tenant_id = 2;
+}
+
+// Response with all consents
+message GetAllConsentsResponse {
+  repeated ConsentRecord consents = 1;
+}
+
+// Request to get consent history
+message GetConsentHistoryRequest {
+  string profile_id = 1;
+  string tenant_id = 2;
+  ConsentPurpose purpose = 3;
+}
+
+// Response with consent history
+message ConsentHistoryResponse {
+  repeated ConsentRecord history = 1;
+}
+
+// Request to verify consent
+message VerifyConsentRequest {
+  string profile_id = 1;
+  string tenant_id = 2;
+  ConsentPurpose purpose = 3;
+}
+
+// Response for consent verification
+message VerifyConsentResponse {
+  bool has_consent = 1;
+  int64 granted_at = 2;  // Unix timestamp in milliseconds
+}
+
+// Consent record
+message ConsentRecord {
+  string id = 1;
+  string profile_id = 2;
+  ConsentPurpose purpose = 3;
+  bool granted = 4;
+  string version = 5;
+  int64 timestamp = 6;  // Unix timestamp in milliseconds
+  string ip_address = 7;
+  string user_agent = 8;
+  string proof_hash = 9;
+}
