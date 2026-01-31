@@ -5,14 +5,17 @@ import dev.vibeafrika.pcm.events.ProfileUpdatedEvent;
 import dev.vibeafrika.pcm.segment.application.usecase.ClassifyUserUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
- * Kafka consumer for profile-related events.
+ * Consumer for profile-related events using Spring Cloud Stream.
  * Triggers re-classification whenever a profile is created or updated.
  */
 @Component
@@ -23,37 +26,41 @@ public class KafkaProfileEventConsumer {
     private final ClassifyUserUseCase classifyUserUseCase;
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "${pcm.topics.profile-events:profile-events}")
-    public void handleProfileCreated(ProfileCreatedEvent event) {
-        log.info("Received ProfileCreatedEvent for profile: {}", event.getProfileId());
-        try {
-            Map<String, Object> attributes = objectMapper.readValue(event.getAttributes().toString(), 
-                new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {});
-            
-            classifyUserUseCase.execute(new ClassifyUserUseCase.Input(
-                event.getTenantId().toString(),
-                UUID.fromString(event.getProfileId().toString()),
-                attributes
-            ));
-        } catch (Exception e) {
-            log.error("Failed to parse profile attributes for classification: {}", e.getMessage());
-        }
+    @Bean
+    public Consumer<ProfileCreatedEvent> profileCreated() {
+        return event -> {
+            log.info("Received ProfileCreatedEvent for profile: {}", event.getProfileId());
+            try {
+                Map<String, Object> attributes = objectMapper.readValue(event.getAttributes().toString(),
+                        new TypeReference<Map<String, Object>>() {
+                        });
+
+                classifyUserUseCase.execute(new ClassifyUserUseCase.Input(
+                        event.getTenantId().toString(),
+                        UUID.fromString(event.getProfileId().toString()),
+                        attributes));
+            } catch (Exception e) {
+                log.error("Failed to parse profile attributes for classification: {}", e.getMessage());
+            }
+        };
     }
 
-    @KafkaListener(topics = "${pcm.topics.profile-events:profile-events}")
-    public void handleProfileUpdated(ProfileUpdatedEvent event) {
-        log.info("Received ProfileUpdatedEvent for profile: {}", event.getProfileId());
-        try {
-            Map<String, Object> attributes = objectMapper.readValue(event.getUpdatedAttributes().toString(), 
-                new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {});
+    @Bean
+    public Consumer<ProfileUpdatedEvent> profileUpdated() {
+        return event -> {
+            log.info("Received ProfileUpdatedEvent for profile: {}", event.getProfileId());
+            try {
+                Map<String, Object> attributes = objectMapper.readValue(event.getUpdatedAttributes().toString(),
+                        new TypeReference<Map<String, Object>>() {
+                        });
 
-            classifyUserUseCase.execute(new ClassifyUserUseCase.Input(
-                event.getTenantId().toString(),
-                UUID.fromString(event.getProfileId().toString()),
-                attributes
-            ));
-        } catch (Exception e) {
-            log.error("Failed to parse updated profile attributes for classification: {}", e.getMessage());
-        }
+                classifyUserUseCase.execute(new ClassifyUserUseCase.Input(
+                        event.getTenantId().toString(),
+                        UUID.fromString(event.getProfileId().toString()),
+                        attributes));
+            } catch (Exception e) {
+                log.error("Failed to parse updated profile attributes for classification: {}", e.getMessage());
+            }
+        };
     }
 }

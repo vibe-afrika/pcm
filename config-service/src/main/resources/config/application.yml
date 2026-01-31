@@ -32,21 +32,50 @@ spring:
       port: ${REDIS_PORT:6779}
       timeout: 2000ms
 
-  # Shared Kafka
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
-      acks: all
-      retries: 3
-    consumer:
-      group-id: ${spring.application.name}-group
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
-    properties:
-      schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
-      specific.avro.reader: true
+  # Shared Spring Cloud Stream (Messaging Abstraction)
+  cloud:
+    function:
+      definition: ${PCM_STREAM_FUNCTIONS:} # To be overridden in service-specific configs if needed
+    stream:
+      kafka:
+        binder:
+          brokers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+          configuration:
+            schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
+            specific.avro.reader: true
+      bindings:
+        # Producers (profile-service)
+        profileCreated-out-0:
+          destination: profile-events
+          content-type: application/*+avro
+        profileUpdated-out-0:
+          destination: profile-events
+          content-type: application/*+avro
+        profileErased-out-0:
+          destination: profile-events
+          content-type: application/*+avro
+        
+        # Consumers
+        profileCreated-in-0:
+          destination: profile-events
+          group: ${spring.application.name}-group
+          content-type: application/*+avro
+        profileUpdated-in-0:
+          destination: profile-events
+          group: ${spring.application.name}-group
+          content-type: application/*+avro
+        profileErased-in-0:
+          destination: profile-events
+          group: ${spring.application.name}-group
+          content-type: application/*+avro
+
+        # Producers (consent-service)
+        consentGranted-out-0:
+          destination: consent-events
+          content-type: application/*+avro
+        consentRevoked-out-0:
+          destination: consent-events
+          content-type: application/*+avro
 
   # Shared Vault
   cloud:

@@ -8,8 +8,7 @@ import dev.vibeafrika.pcm.profile.domain.event.ProfileErasedEvent;
 import dev.vibeafrika.pcm.profile.domain.event.ProfileEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -23,11 +22,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class KafkaProfileEventPublisher implements ProfileEventPublisher {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final StreamBridge streamBridge;
     private final ObjectMapper objectMapper;
-
-    @Value("${pcm.topics.profile-events:profile-events}")
-    private String profileEventsTopic;
 
     @Override
     public void publish(ProfileCreatedEvent domainEvent) {
@@ -43,7 +39,7 @@ public class KafkaProfileEventPublisher implements ProfileEventPublisher {
                 .setAttributes(toJson(domainEvent.getAttributes()))
                 .build();
 
-        publish(avroEvent.getProfileId(), avroEvent);
+        send("profileCreated-out-0", avroEvent.getProfileId(), avroEvent);
     }
 
     @Override
@@ -59,7 +55,7 @@ public class KafkaProfileEventPublisher implements ProfileEventPublisher {
                 .setUpdatedAttributes(toJson(domainEvent.getUpdatedAttributes()))
                 .build();
 
-        publish(avroEvent.getProfileId(), avroEvent);
+        send("profileUpdated-out-0", avroEvent.getProfileId(), avroEvent);
     }
 
     @Override
@@ -74,18 +70,22 @@ public class KafkaProfileEventPublisher implements ProfileEventPublisher {
                 .setProfileId(domainEvent.getAggregateId())
                 .build();
 
-        publish(avroEvent.getProfileId(), avroEvent);
+        send("profileErased-out-0", avroEvent.getProfileId(), avroEvent);
     }
 
-    private void publish(String key, Object event) {
-        kafkaTemplate.send(profileEventsTopic, key, event)
-                .whenComplete((result, ex) -> {
-                    if (ex == null) {
-                        log.debug("Published event to topic {}: {}", profileEventsTopic, event);
-                    } else {
-                        log.error("Failed to publish event to topic {}: {}", profileEventsTopic, ex.getMessage());
-                    }
-                });
+    private void send(String bindingName, String key, Object event) {
+        log.debug("Sending event to binding {}: {}", bindingName, event);
+        boolean sent = streamBridge.send(bindingName,
+                org.springframework.messaging.support.MessageBuilder
+                        .withPayload(event)
+                        .setHeader("partitionKey", key)
+                        .build());
+
+        if (sent) {
+            log.debug("Successfully sent event to binding {}", bindingName);
+        } else {
+            log.error("Failed to send event to binding {}", bindingName);
+        }
     }
 
     private String toJson(Map<String, Object> map) {
