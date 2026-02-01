@@ -6,7 +6,6 @@ import dev.vibeafrika.pcm.profile.application.dto.ProfileResponse;
 import dev.vibeafrika.pcm.profile.application.service.PIIProtectionService;
 import dev.vibeafrika.pcm.profile.domain.event.ProfileCreatedEvent;
 import dev.vibeafrika.pcm.profile.domain.event.ProfileEventPublisher;
-import dev.vibeafrika.pcm.profile.domain.model.Handle;
 import dev.vibeafrika.pcm.profile.domain.model.Profile;
 import dev.vibeafrika.pcm.profile.domain.repository.ProfileRepository;
 import org.junit.jupiter.api.BeforeEach;

@@ -119,6 +119,7 @@ PCM uses a centralized configuration model via **Spring Cloud Config**. All core
 ## 📚 Documentation
 
 - [**Quick Start Guide**](docs/QUICKSTART.md) - Get PCM running locally in 5 minutes.
+- [**API Reference**](docs/API_REFERENCE.md) - Endpoints, payloads, and Examples.
 - [**Architecture Decision Records**](docs/architecture/) - Design decisions and rationale.
 ---
 
