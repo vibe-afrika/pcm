@@ -61,10 +61,10 @@
             <version>2.15.0.RELEASE</version>
         </dependency>
 
-        <!-- Spring Kafka -->
+        <!-- Spring Cloud Stream Kafka Binder -->
         <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-stream-kafka</artifactId>
         </dependency>
 
         <!-- Spring Cloud Config -->

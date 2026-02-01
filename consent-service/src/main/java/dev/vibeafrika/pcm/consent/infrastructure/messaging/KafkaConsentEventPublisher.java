@@ -6,8 +6,8 @@ import dev.vibeafrika.pcm.consent.domain.event.ConsentRevokedEvent;
 import dev.vibeafrika.pcm.events.ConsentPurpose;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.KafkaTemplate;
+
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,53 +19,50 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class KafkaConsentEventPublisher implements ConsentEventPublisher {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
-
-    @Value("${pcm.topics.consent-events:consent-events}")
-    private String consentEventsTopic;
+    private final StreamBridge streamBridge;
 
     @Override
     public void publish(ConsentGrantedEvent domainEvent) {
-        dev.vibeafrika.pcm.events.ConsentGrantedEvent avroEvent = dev.vibeafrika.pcm.events.ConsentGrantedEvent.newBuilder()
-            .setEventId(domainEvent.getEventId())
-            .setEventType(domainEvent.getEventType())
-            .setOccurredAt(domainEvent.getOccurredAt().toEpochMilli())
-            .setVersion(1)
-            .setTenantId(domainEvent.getTenantId())
-            .setConsentId(domainEvent.getAggregateId())
-            .setProfileId(domainEvent.getProfileId())
-            .setPurpose(ConsentPurpose.valueOf(domainEvent.getPurpose()))
-            .setConsentVersion(domainEvent.getConsentVersion())
-            .setProofHash(domainEvent.getProofHash())
-            .build();
+        dev.vibeafrika.pcm.events.ConsentGrantedEvent avroEvent = dev.vibeafrika.pcm.events.ConsentGrantedEvent
+                .newBuilder()
+                .setEventId(domainEvent.getEventId())
+                .setEventType(domainEvent.getEventType())
+                .setOccurredAt(domainEvent.getOccurredAt().toEpochMilli())
+                .setVersion(1)
+                .setTenantId(domainEvent.getTenantId())
+                .setConsentId(domainEvent.getAggregateId())
+                .setProfileId(domainEvent.getProfileId())
+                .setPurpose(ConsentPurpose.valueOf(domainEvent.getPurpose()))
+                .setConsentVersion(domainEvent.getConsentVersion())
+                .setProofHash(domainEvent.getProofHash())
+                .build();
 
-        publish(avroEvent.getProfileId().toString(), avroEvent);
+        send("consentGranted-out-0", avroEvent.getProfileId().toString(), avroEvent);
     }
 
     @Override
     public void publish(ConsentRevokedEvent domainEvent) {
-        dev.vibeafrika.pcm.events.ConsentRevokedEvent avroEvent = dev.vibeafrika.pcm.events.ConsentRevokedEvent.newBuilder()
-            .setEventId(domainEvent.getEventId())
-            .setEventType(domainEvent.getEventType())
-            .setOccurredAt(domainEvent.getOccurredAt().toEpochMilli())
-            .setVersion(1)
-            .setTenantId(domainEvent.getTenantId())
-            .setConsentId(domainEvent.getAggregateId())
-            .setProfileId(domainEvent.getProfileId())
-            .setPurpose(ConsentPurpose.valueOf(domainEvent.getPurpose()))
-            .build();
+        dev.vibeafrika.pcm.events.ConsentRevokedEvent avroEvent = dev.vibeafrika.pcm.events.ConsentRevokedEvent
+                .newBuilder()
+                .setEventId(domainEvent.getEventId())
+                .setEventType(domainEvent.getEventType())
+                .setOccurredAt(domainEvent.getOccurredAt().toEpochMilli())
+                .setVersion(1)
+                .setTenantId(domainEvent.getTenantId())
+                .setConsentId(domainEvent.getAggregateId())
+                .setProfileId(domainEvent.getProfileId())
+                .setPurpose(ConsentPurpose.valueOf(domainEvent.getPurpose()))
+                .build();
 
-        publish(avroEvent.getProfileId().toString(), avroEvent);
+        send("consentRevoked-out-0", avroEvent.getProfileId().toString(), avroEvent);
     }
 
-    private void publish(String key, Object event) {
-        kafkaTemplate.send(consentEventsTopic, key, event)
-            .whenComplete((result, ex) -> {
-                if (ex == null) {
-                    log.debug("Published consent event to topic {}: {}", consentEventsTopic, event);
-                } else {
-                    log.error("Failed to publish consent event to topic {}: {}", consentEventsTopic, ex.getMessage());
-                }
-            });
+    private void send(String bindingName, String key, Object event) {
+        log.debug("Sending consent event to binding {}: {}", bindingName, event);
+        streamBridge.send(bindingName,
+                org.springframework.messaging.support.MessageBuilder
+                        .withPayload(event)
+                        .setHeader("partitionKey", key)
+                        .build());
     }
 }

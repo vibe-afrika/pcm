@@ -9,6 +9,9 @@ spring:
   kafka:
     consumer:
       group-id: segment-service-group
+  cloud:
+    function:
+      definition: profileCreated;profileUpdated
 
 grpc:
   server:
